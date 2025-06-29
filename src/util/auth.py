@@ -4,7 +4,7 @@ from flask import (
     redirect
 )
 
-def is_logged_in(f):
+def requires_authentication(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if "user" not in session:

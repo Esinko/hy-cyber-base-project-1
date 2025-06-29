@@ -5,14 +5,14 @@ description = "Cyber Security Base Course Project 1"
 authors = [
     {name = "Esinko", email = "eemil.sinkko(at)removethis.helsinki.fi"},
 ]
-dependencies = ["flask>=2.2.5", "flask-login>=0.6.3"]
+dependencies = ["flask>=2.2.5"]
 requires-python = ">=3.9"
 readme = "README.md"
 license = {text = "MIT"}
 
 
 [tool.pdm.scripts]
-start = "python src/main.py"
+start = "flask --app ./src/main.py run"
 
 
 [tool.pdm]

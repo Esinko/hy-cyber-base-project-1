@@ -1,0 +1,200 @@
+:root {
+    --body-background: #000;
+    --main-background: rgb(2, 0, 1)
+    --card: rgba(255, 255, 255, 0.123);
+    --very-green: #008F11;
+    --highlight-green: #00FF41;
+    --text: #fff;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+/* MARK: Overrides */
+
+body {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100vw;
+    height: 100vh;
+    border: 0px;
+    margin: 0px;
+    padding: 0px;
+    background-color: var(--body-background);
+    overflow: hidden;
+    font-family: monospace;
+    color: var(--text)
+}
+
+h1, h2, h3, h4 {
+    padding: 12px;
+    background-color: var(--very-green);
+    color: black;
+}
+h1 {
+    font-size: 32px;
+    font-weight: 800;
+    padding: 8px;
+    margin: 0px;
+}
+h2 {
+    font-size: 24px;
+    font-weight: 800;
+    padding: 4px;
+    margin: 0px;
+}
+
+p, pre {
+    font-size: 14px;
+    margin-block: 10px;
+}
+
+a {
+    padding: 5px 8px 5px 8px;
+    font-size: 12px;
+    border-radius: 2px;
+    color: white;
+    text-decoration: none;
+    cursor: pointer;
+    font-weight: bold;
+}
+a:hover {
+    text-decoration: underline;
+}
+h2 > a {
+    font-size: inherit;
+    font-weight: inherit;
+}
+
+button, select {
+    font-family: monospace;
+    background-color: transparent;
+    color: var(--text);
+    border-top: 2px var(--highlight-green) solid;
+    border-left: 2px var(--highlight-green) solid;
+    border-right: 2px var(--very-green) solid;
+    border-bottom: 2px var(--very-green) solid;
+    padding: 2px 5px 2px 5px;
+    cursor: pointer;
+}
+
+input, textarea {
+    border-bottom: 2px var(--very-green) solid;
+    border-left: 2px transparent solid;
+    border-right: 2px transparent solid;
+    border-top: 2px transparent solid;
+    background-color: transparent;
+    color: var(--text);
+    font-family: monospace;
+}
+
+button[type="submit"] {
+    width: min-content;
+    cursor: pointer;
+}
+
+dialog {
+    background-color: var(--body-background);
+    color: var(--text);
+    border: 0px;
+}
+
+/* MARK: Shorthands */
+
+.stack {
+    display: flex;
+    flex-direction: column;
+}
+
+.flex {
+    display: flex;
+}
+
+.inline {
+    padding: 0px;
+    display: inline;
+}
+
+.row {
+    width: 100%;
+}
+form > .row {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.space-around {
+    justify-content: space-around;
+    align-items: center;
+}
+
+.space-between {
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* MARK: Specials */
+.content {
+    width: 100%;
+    height: 100%;
+}
+
+.sidebar {
+    height: 100vh;
+    width: 300px;
+    background-color: var(--main-background);
+}
+
+.box {
+    border: 3px solid var(--very-green);
+    padding: 8px;
+    background-color: var(--main-background);
+}
+
+.center {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+}
+
+.chat-button {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 4px;
+    cursor: pointer;
+    border: 2px solid var(--very-green);
+    border-left: 2px solid var(--highlight-green);
+    height: 50px;
+    font-size: 14px;
+}
+.chat-button > a {
+    font-size: inherit;
+    padding: 0px;
+    padding-inline: 8px;
+    margin: 0px;
+    width: 100%;
+    height: 100%;
+}
+.chat-button > p {
+    font-size: 8px;
+    margin: 0px;
+    margin-left: 8px;
+    height: 0px;
+    margin-top: -20px;
+}
+
+.message-box {
+    background-color: var(--very-green);
+    margin: 0px;
+    padding: 8px;
+}
+
+.error {
+    color: red
+}

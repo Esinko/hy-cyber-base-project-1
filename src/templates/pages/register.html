@@ -1,0 +1,59 @@
+{% extends "./skeleton.html" %}
+{% block content %}
+    <div class="center stack" style="height: 100vh;">
+        <div class="box" style="width: 300px; margin-top: -80px;">
+            <h2>Register</h2>
+
+            <div class="stack">
+                <p>Register to Zero Chat with a l33t h4ckz0r tag and password.</p>
+                <p>Remember to use a strong password!</p>
+
+                {% if 'tag-taken' in request.args %}
+                <p class="error">That tag is taken :/</p>
+                {% endif %}
+
+                {% if 'password-mismatch' in request.args %}
+                <p class="error">Passwords did not match.</p>
+                {% endif %}
+
+                {% if 'password-weak' in request.args %}
+                <p class="error">Password is too weak :(</p>
+                {% endif %}
+
+                <form action="/api/register" method="POST">
+                    <div class="row">
+                        <label for="tag">Tag:</label>
+                        <input
+                            type="text"
+                            name="tag"
+                            required
+                        >
+                    </div>
+                    <div class="row">
+                        <label for="password">Password:</label>
+                        <input
+                            type="password"
+                            name="password"
+                            required
+                        >
+                    </div>
+                    <div class="row">
+                        <label for="password-again">Password:</label>
+                        <input
+                            type="password-again"
+                            name="password-again"
+                            required
+                        >
+                    </div>
+
+                    <input type="hidden" name="request_token" value="{{ session.request_token }}">
+                    <div class="flex" style="justify-content: space-between; margin-top: 20px;">
+                        <a href="/">Cancel</a>
+                        <button type="submit">Register</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <a style="margin-top: 30px;" href="/login">Login instead?</a>
+    </div>
+{% endblock %}

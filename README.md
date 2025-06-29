@@ -131,7 +131,7 @@ Install each dependency one-by-one with:
 pip install package-name==version
 ```
 
-*Replace `package-name` with the name of the package and `version` with the version of the package.
+*Replace `package-name` with the name of the package and `version` with the version of the package.*
 
 #### Step 3: Run it!
 You can run the project with `pdm`:

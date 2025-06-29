@@ -1,0 +1,41 @@
+{% extends "./skeleton.html" %}
+{% block navigation %}
+    {% include "./components/sidebar.html" %}
+{% endblock %}
+{% block content %}
+    {% if "chat" in request.args %}
+    <div class="stack row" style="height: 100vh;">
+        <div class="flex row box" style="min-height: 54px; border-left: 0px;">
+            {% set chat = (chats | selectattr("id", "equalto", request.args["chat"] | int) | list)[0] %}
+            <h2 style="background-color: transparent; color: var(--text)">
+                {% if chat.is_group %}
+                    {chat.name}
+                {% else %}
+                    Direct Message: @{{ known_users[(chat_members[chat.id] | rejectattr("user_id", "equalto", session["user"].id) | list)[0].user_id].tag }}
+                {% endif %}
+            </h2>
+        </div>
+        <div class="stack" style="height: 100%;">
+            {% for message in messages %}
+                message.content
+            {% endfor %}
+        </div>
+        <div class="row message-box">
+            <form action="/api/send-message" method="POST">
+                <input type="hidden" name="request_token" value="{{ session.request_token }}">
+                <input type="hidden" name="chat_id" value="{{ chat.id }}">
+                <div class="flex row" style="background-color: black;">
+                    <input
+                        type="text"
+                        style="width: 100%; color: white; padding: 5px; border: 0px;"
+                        placeholder="Your Message"
+                        name="content"
+                        required
+                    >
+                    <button type="submit" style="border: 0px; margin-left: 10px;">Send</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}

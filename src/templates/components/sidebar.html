@@ -1,0 +1,54 @@
+<div class="sidebar stack">
+    <h1 style="height: 54px;">Zero Chat</h1>
+    <div class="box" style="width: 100%; border-top: 0px;">
+        {% if session.user %}
+            <p>Account: {{ session.user.tag }}</p>
+            <p><a class="inline" href="/logout">Logout</a></p>
+        {% else %}
+            <p>You are not logged in.</p>
+            <p>
+                <a class="inline" href="/login">Login</a>
+                /
+                <a class="inline" href="/register">Register</a>
+            </p>
+        {% endif %}
+    </div>
+    <div class="box stack" style="height: 100%; border-top: 0px;">
+        {% if session.user %}
+            <p>Your Chats</p>
+            <div class="stack" style="height: 100%; overflow-y: scroll; padding: 2px;">
+                {% for chat in chats %}
+                <div class="chat-button">
+                    {% if chat.is_group %}
+                        <a href="/?chat={{ chat.id }}">
+                            {chat.name}
+                        </a>
+                    {% else %}
+                        <a href="/?chat={{ chat.id }}">
+                            @{{ known_users[(chat_members[chat.id] | rejectattr("user_id", "equalto", session["user"].id) | list)[0].user_id].tag }}
+                        </a>
+                        <p>Direct Message</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="flex row space-around">
+                <a href="/?create-dm">
+                    New DM
+                </a>
+                <a>
+                    New Group
+                </a>
+            </div>
+        {% else %}
+            <div class="center">
+                <p style="font-size: 10px;">
+                    <i>Your chats would be here, if you'd be logged in ...</i>
+                </p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% extends "./dialogs/create-dm.html" %}

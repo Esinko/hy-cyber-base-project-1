@@ -1,0 +1,43 @@
+<dialog
+{% if "create-dm" in request.args %}
+    open
+{% endif %}
+>
+    <div class="center stack" style="height: 100vh;">
+        <div class="box" style="width: 300px; margin-top: -80px;">
+            <div class="flex row" style="flex-wrap: nowrap;">
+                <h2 style="width: 100%;">New DM Chain</h2>
+                <h2><a href="/">X</a></h2>
+            </div>
+
+            <div class="stack">
+                <p>Create a Direct Message chain with another l33t h4ckz0r.</p>
+
+                {% if 'no-user' in request.args %}
+                <p class="error">No such user.</p>
+                {% endif %}
+
+                {% if 'dm-exists' in request.args %}
+                <p class="error">The DM chain already exists.</p>
+                {% endif %}
+
+                <form action="/api/create-dm" method="POST">
+                    <div class="row">
+                        <label for="tag">Tag:</label>
+                        <input
+                            type="text"
+                            name="tag"
+                            required
+                        >
+                    </div>
+
+                    <input type="hidden" name="request_token" value="{{ session.request_token }}">
+                    <div class="flex" style="justify-content: space-between; margin-top: 20px;">
+                        <a href="/">Cancel</a>
+                        <button type="submit">Create</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</dialog>
