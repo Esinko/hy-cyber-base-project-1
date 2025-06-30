@@ -73,6 +73,15 @@ def api_create_dm():
     return redirect(f"/?chat={created_chat.id}")
 
 @requires_authentication # MARK: Create Chats
+def api_create_group():
+    if "name" not in request.form.keys():
+        return "Bad Request.", 400
+    
+    created_chat = get_db().create_chat(Chat(name=request.form["name"], is_group=True), [ session["user"]["id"] ])
+
+    return redirect(f"/?chat={created_chat.id}")
+
+@requires_authentication # MARK: Send message
 def api_send_message():
     if not includes(request.form, ["chat_id", "content"]) or len(request.form["content"]) < 1:
         return "Bad Request.", 400

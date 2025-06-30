@@ -16,13 +16,14 @@
     <div class="box stack" style="height: 100%; border-top: 0px;">
         {% if session.user %}
             <p>Your Chats</p>
-            <div class="stack" style="height: 100%; overflow-y: scroll; padding: 2px;">
+            <div class="stack" style="height: 100%; overflow-y: scroll; padding: 2px; gap: 4px">
                 {% for chat in chats %}
                 <div class="chat-button">
                     {% if chat.is_group %}
                         <a href="/?chat={{ chat.id }}">
-                            {chat.name}
+                            {{ chat.name }}
                         </a>
+                        <p>Group</p>
                     {% else %}
                         <a href="/?chat={{ chat.id }}">
                             @{{ known_users[(chat_members[chat.id] | rejectattr("user_id", "equalto", session["user"].id) | list)[0].user_id].tag }}
@@ -37,7 +38,7 @@
                 <a href="/?create-dm">
                     New DM
                 </a>
-                <a>
+                <a href="/?create-group">
                     New Group
                 </a>
             </div>
@@ -51,4 +52,5 @@
     </div>
 </div>
 
-{% extends "./dialogs/create-dm.html" %}
+{% include "./dialogs/create-dm.html" %}
+{% include "./dialogs/create-group.html" %}

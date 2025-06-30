@@ -1,5 +1,6 @@
 from secrets import token_urlsafe
 from pathlib import Path
+from datetime import datetime
 from flask import (
     Flask,
     session,
@@ -14,7 +15,8 @@ from api import (
     api_login,
     api_register,
     api_create_dm,
-    api_send_message
+    api_send_message,
+    api_create_group
 )
 from database.sqlite import get_db
 
@@ -67,6 +69,7 @@ def check_csrf():
 def handle_exception_not_found(_):
     return "Not found.", 404
 
+app.jinja_env.globals["get_timestamp"] = lambda epoch: datetime.fromtimestamp(epoch).strftime("%d.%m.%Y @ %H:%M ")
 
 # MARK: Site routes
 @app.get("/")
@@ -111,3 +114,4 @@ app.add_url_rule("/api/login", view_func=api_login, methods=["POST"])
 app.add_url_rule("/api/register", view_func=api_register, methods=["POST"])
 app.add_url_rule("/api/create-dm", view_func=api_create_dm, methods=["POST"])
 app.add_url_rule("/api/send-message", view_func=api_send_message, methods=["POST"])
+app.add_url_rule("/api/create-group", view_func=api_create_group, methods=["POST"])

@@ -1,41 +1,53 @@
 {% extends "./skeleton.html" %}
 {% block navigation %}
     {% include "./components/sidebar.html" %}
+    {% include "./dialogs/invite.html" %}
 {% endblock %}
 {% block content %}
     {% if "chat" in request.args %}
-    <div class="stack row" style="height: 100vh;">
-        <div class="flex row box" style="min-height: 54px; border-left: 0px;">
-            {% set chat = (chats | selectattr("id", "equalto", request.args["chat"] | int) | list)[0] %}
-            <h2 style="background-color: transparent; color: var(--text)">
+        <div class="stack row" style="height: 100vh;">
+            <div class="flex row space-between box" style="height: 54px; border-left: 0px; align-items: center;">
+                {% set chat = (chats | selectattr("id", "equalto", request.args["chat"] | int) | list)[0] %}
+                <h2 style="background-color: transparent; color: var(--text)">
+                    {% if chat.is_group %}
+                        {{ chat.name }}
+                    {% else %}
+                        Direct Message: @{{ known_users[(chat_members[chat.id] | rejectattr("user_id", "equalto", session["user"].id) | list)[0].user_id].tag }}
+                    {% endif %}
+                </h2>
                 {% if chat.is_group %}
-                    {chat.name}
-                {% else %}
-                    Direct Message: @{{ known_users[(chat_members[chat.id] | rejectattr("user_id", "equalto", session["user"].id) | list)[0].user_id].tag }}
+                    <div>
+                        <a href="/?chat={{ chat.id }}&invite">Invite</a>
+                        <a>Settings</a>
+                    </div>
                 {% endif %}
-            </h2>
+            </div>
+            <div class="stack" style="padding: 8px; overflow-y: auto; flex: 1 1 auto; flex-direction: column-reverse;">
+                {% for message in (messages | reverse) %}
+                    <div class="flex stack row message">
+                        <p class="timestamp"><i>{{ get_timestamp(message.created) }}</i></p>
+                        <p style="padding-block: 8px; margin: 0px; max-width: 100%; word-break: break-word;">
+                            @{{ known_users[message.user_id].tag }}: {{ message.content }}
+                        </p>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="row message-box">
+                <form action="/api/send-message" method="POST">
+                    <input type="hidden" name="request_token" value="{{ session.request_token }}">
+                    <input type="hidden" name="chat_id" value="{{ chat.id }}">
+                    <div class="flex row" style="background-color: black;">
+                        <input
+                            type="text"
+                            style="width: 100%; color: white; padding: 5px; border: 0px;"
+                            placeholder="Your Message"
+                            name="content"
+                            required
+                        >
+                        <button type="submit" style="border: 0px; margin-left: 10px;">Send</button>
+                    </div>
+                </form>
+            </div>
         </div>
-        <div class="stack" style="height: 100%;">
-            {% for message in messages %}
-                message.content
-            {% endfor %}
-        </div>
-        <div class="row message-box">
-            <form action="/api/send-message" method="POST">
-                <input type="hidden" name="request_token" value="{{ session.request_token }}">
-                <input type="hidden" name="chat_id" value="{{ chat.id }}">
-                <div class="flex row" style="background-color: black;">
-                    <input
-                        type="text"
-                        style="width: 100%; color: white; padding: 5px; border: 0px;"
-                        placeholder="Your Message"
-                        name="content"
-                        required
-                    >
-                    <button type="submit" style="border: 0px; margin-left: 10px;">Send</button>
-                </div>
-            </form>
-        </div>
-    </div>
     {% endif %}
 {% endblock %}

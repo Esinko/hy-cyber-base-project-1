@@ -1,0 +1,44 @@
+<dialog
+{% if "invite" in request.args %}
+    open
+{% endif %}
+>
+    <div class="center stack" style="height: 100vh;">
+        <div class="box" style="width: 300px; margin-top: -80px;">
+            <div class="flex row" style="flex-wrap: nowrap;">
+                <h2 style="width: 100%;">Invite New Member</h2>
+                <h2><a href="/?chat={{ request.args['chat'] }}">X</a></h2>
+            </div>
+
+            <div class="stack">
+                <p>Invite a l33t h4ckz0r to this group.</p>
+
+                {% if 'no-user' in request.args %}
+                <p class="error">No such user.</p>
+                {% endif %}
+
+                {% if 'is-member' in request.args %}
+                <p class="error">User is already a member.</p>
+                {% endif %}
+
+                <form action="/api/invite" method="POST">
+                    <div class="row">
+                        <label for="tag">Tag:</label>
+                        <input
+                            type="text"
+                            name="tag"
+                            required
+                        >
+                    </div>
+
+                    <input type="hidden" name="request_token" value="{{ session.request_token }}">
+                    <input type="hidden" name="chat_id" value="{{ request.args['chat'] }}">
+                    <div class="flex" style="justify-content: space-between; margin-top: 20px;">
+                        <a href="/?chat={{ request.args['chat'] }}">Cancel</a>
+                        <button type="submit">Invite</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</dialog>

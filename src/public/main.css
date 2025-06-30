@@ -46,9 +46,13 @@ h2 {
     margin: 0px;
 }
 
-p, pre {
+p {
     font-size: 14px;
     margin-block: 10px;
+}
+pre {
+    margin: 0;
+    padding: 0;
 }
 
 a {
@@ -96,7 +100,7 @@ button[type="submit"] {
 }
 
 dialog {
-    background-color: var(--body-background);
+    background-color: transparent;
     color: var(--text);
     border: 0px;
 }
@@ -197,4 +201,19 @@ form > .row {
 
 .error {
     color: red
+}
+
+.message {
+    margin-bottom: 10px;
+    border-left: 2px solid var(--very-green);
+    padding-left: 8px
+}
+.message .timestamp {
+    font-size: 12px;
+    padding: 2px;
+    margin: 0px;
+    color: black;
+    background-color: var(--very-green); 
+    width: max-content;
+    font-weight: bold;
 }
