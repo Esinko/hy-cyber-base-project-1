@@ -31,16 +31,16 @@ app.debug = True
 # END FLAW 3 (part-1)
 # FIX FOR FLAW 3 (part-1): JUST REMOVE CODE ABOVE
 
-# BEGIN FLAW 1
+# BEGIN FLAW 5
 app.secret_key = "VERYSECURE"
-# END FLAW 1
+# END FLAW 5
 
-# BEGIN FIX 1
+# BEGIN FIX 5
 #secret_key_file = Path("./.secret")
 #if not secret_key_file.exists():
 #    secret_key_file.write_text(token_urlsafe(64), "utf-8")
 #app.secret_key = secret_key_file.read_text("utf-8")
-# END FIX 1
+# END FIX 5
 
 @app.teardown_appcontext
 def close_connection(_):  # Auto-closes the database connection
