@@ -1,41 +1,81 @@
 <div class="sidebar stack">
     <h1 style="height: 54px;">Zero Chat</h1>
-    <div class="box" style="width: 100%; border-top: 0px;">
-        {% if session.user %}
+    {% if session.user %}
+        <div class="box" style="width: 100%; border-top: 0px;">
             <p>Account: {{ session.user.tag }}</p>
-            <p><a class="inline" href="/logout">Logout</a></p>
-        {% else %}
+            <p style="margin-left: -5px;"><a class="inline" href="/logout">Logout</a></p>
+        </div>
+    {% else %}
+        <div class="box blink" style="width: 100%; border-top: 0px;">
             <p>You are not logged in.</p>
             <p>
                 <a class="inline" href="/login">Login</a>
                 /
                 <a class="inline" href="/register">Register</a>
             </p>
-        {% endif %}
-    </div>
-    <div class="box stack" style="height: 100%; border-top: 0px;">
+        </div>
+    {% endif %}
+    <div class="box stack" style="height: 100%; border-top: 0px; padding: 0px;">
         {% if session.user %}
-            <p>Your Chats</p>
-            <div class="stack" style="height: 100%; overflow-y: scroll; padding: 2px; gap: 4px">
-                {% for chat in chats %}
-                <div class="chat-button">
-                    {% if chat.is_group %}
-                        <a href="/?chat={{ chat.id }}">
-                            {{ chat.name }}
-                        </a>
-                        <p>Group</p>
-                    {% else %}
-                        <a href="/?chat={{ chat.id }}">
-                            @{{ known_users[(chat_members[chat.id] | rejectattr("user_id", "equalto", session["user"].id) | list)[0].user_id].tag }}
-                        </a>
-                        <p>Direct Message</p>
-                    {% endif %}
+            {% if invites | length > 0 %}
+                <div
+                    class="stack row space-around flex-start"
+                    style="border-bottom: 2px solid var(--very-green);"
+                >
+                    <div class="row" style="padding-inline: 8px;">
+                        <p style="padding-block: 8px;">Your Invites</p>
+                        <p style="padding-bottom: 8px; font-size: 12px;">You have been invited to join {{ invites | length }} group(s)</p>
+                    </div>
+                    <div class="stack row" style="overflow-y: scroll; gap: 4px; height: 140px; padding-inline: 8px; padding-bottom: 8px;">
+                        {% for invite in invites %}
+                            <form method="POST" class="chat-button row blink" style="height: max-content;">
+                                <input type="hidden" name="request_token" value="{{ session.request_token }}">
+                                <input type="hidden" name="chat_id" value="{{ invite.id }}">
+                                <p class="truncate">{{ invite.name }}</p>
+                                <p style="font-size: 11px;">Group</p>
+                                <div class="flex" style="justify-content: space-between; margin-top: 20px;">
+                                    <button
+                                        type="submit"
+                                        formaction="/api/join/reject"
+                                    >
+                                        Reject
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        formaction="/api/join/accept?return={{ request.args['chat'] }}"
+                                    >
+                                        Join
+                                    </button>
+                                </div>
+                            </form>
+                        {% endfor %}
+                    </div>
                 </div>
+            {% endif %}
+
+            <p style="padding: 8px;">Your Chats</p>
+            <div class="stack" style="height: 100%; overflow-y: scroll; gap: 4px; padding-inline: 8px;">
+                {% for chat in chats %}
+                    <a
+                        class="chat-button"
+                        href="/?chat={{ chat.id }}"
+                        {% if chat.is_group %}
+                            style="padding: 12px; line-height: 24px;"
+                        {% endif %}
+                        
+                    >
+                        {% if chat.is_group %}
+                            {{ chat.name }}
+                        {% else %}
+                            @{{ known_users[(chat_members[chat.id] | rejectattr("user_id", "equalto", session["user"].id) | list)[0].user_id].tag }}<br></br>
+                            Direct Message
+                        {% endif %}
+                    </a>
                 {% endfor %}
             </div>
             
-            <div class="flex row space-around">
-                <a href="/?create-dm">
+            <div class="flex row space-around" style="height: 100px; border-top: 2px solid var(--very-green);">
+                <a href="/?create-dm{{ '&chat=' + request.args['chat'] if 'chat' in request.args else '' }}">
                     New DM
                 </a>
                 <a href="/?create-group">
@@ -44,7 +84,7 @@
             </div>
         {% else %}
             <div class="center">
-                <p style="font-size: 10px;">
+                <p style="font-size: 10px; margin: 15px">
                     <i>Your chats would be here, if you'd be logged in ...</i>
                 </p>
             </div>

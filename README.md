@@ -32,11 +32,11 @@ This project demonstrates 5 different types of vulnerabilities. If you want to d
 <summary>Reveal vulnerability list</summary>
 
 ### 1. `A01:2021 – Broken Access Control`
-A variant of this vulnerability called *IDOR* (Insecure Direct Object References, [CWE-639](https://cwe.mitre.org/data/definitions/639.html)) is present in the Profile API.
+A variant of this vulnerability called *IDOR* (Insecure Direct Object References, [CWE-639](https://cwe.mitre.org/data/definitions/639.html)) is present in the message polling API.
 
-The API does to verify that the user being edited is the one initiating the edits, when the active user is not a "global admin".
+The API does not verify that the user is in the chat new messages are being attempted to be retrieved from.
 
-This allows any authenticated user to change the nametag of any other user.
+This allows any authenticated user to poll for new messages from any chat.
 
 todo: add code block and link to code
 

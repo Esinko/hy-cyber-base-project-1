@@ -7,8 +7,7 @@ from flask import (
     request,
     send_from_directory,
     redirect,
-    render_template,
-    g
+    render_template
 )
 from werkzeug.exceptions import NotFound
 from api import (
@@ -16,7 +15,10 @@ from api import (
     api_register,
     api_create_dm,
     api_send_message,
-    api_create_group
+    api_create_group,
+    api_poll_new_message,
+    api_invite,
+    api_join
 )
 from database.sqlite import get_db
 
@@ -55,9 +57,10 @@ with app.app_context(): # Initialize database
 def check_csrf():
     # /api/* paths require CSRF protections
     if request.path.startswith("/api/"):
+        data = request.get_json() if request.headers.get("Content-Type") == "application/json" else request.form
         if (
-            "request_token" not in request.form.keys() or
-            request.form["request_token"] != session["request_token"]
+            "request_token" not in data.keys() or
+            data["request_token"] != session["request_token"]
         ):
             return "Unauthorized", 401
     elif "request_token" not in session:
@@ -75,17 +78,33 @@ app.jinja_env.globals["get_timestamp"] = lambda epoch: datetime.fromtimestamp(ep
 @app.get("/")
 def home():
     # Get data if logged in
-    chats, chat_members, known_users, messages = ([], [], {}, [])
+    chats, chat_members, known_users, messages, invites, is_chat_admin = ([], [], {}, [], [], False)
     if "user" in session:
         chats = get_db().get_chats(session["user"]["id"])
         chat_members = { chat.id: get_db().get_chat_members(chat.id) for chat in chats }
         know_user_ids = list({ member.user_id for members in chat_members.values() for member in members })
         known_users = { member_id: get_db().get_user_by_id(member_id) for member_id in know_user_ids }
+        invites = get_db().get_user_invites(session["user"]["id"])
 
+        # If in chat
         if "chat" in request.args:
-            messages = get_db().get_messages(int(request.args["chat"]))
+            chat_id = int(request.args["chat"])
+            messages = get_db().get_messages(chat_id)
+            is_chat_admin = (
+                # FIXME: This is pretty slow. We should get the user's membership as is 
+                # and check that instead of looping through all of them
+                any(map(lambda mem: mem.user_id == session["user"]["id"] and mem.is_chat_admin, chat_members[chat_id])) or
+                session["user"]["is_admin"]
+            )
 
-    return render_template("./pages/home.html", chats=chats, chat_members=chat_members, known_users=known_users, messages=messages)
+    return render_template("./pages/home.html",
+                           chats=chats,
+                           chat_members=chat_members,
+                           known_users=known_users,
+                           messages=messages,
+                           invites=invites,
+                           is_chat_admin=is_chat_admin
+                        )
 
 
 @app.get("/login")
@@ -115,3 +134,7 @@ app.add_url_rule("/api/register", view_func=api_register, methods=["POST"])
 app.add_url_rule("/api/create-dm", view_func=api_create_dm, methods=["POST"])
 app.add_url_rule("/api/send-message", view_func=api_send_message, methods=["POST"])
 app.add_url_rule("/api/create-group", view_func=api_create_group, methods=["POST"])
+app.add_url_rule("/api/poll-messages", view_func=api_poll_new_message, methods=["POST"])
+app.add_url_rule("/api/invite", view_func=api_invite, methods=["POST"])
+app.add_url_rule("/api/join/accept", view_func=api_join, methods=["POST"])
+app.add_url_rule("/api/join/reject", view_func=api_join, methods=["POST"])

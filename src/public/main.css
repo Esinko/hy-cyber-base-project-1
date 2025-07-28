@@ -3,6 +3,7 @@
     --main-background: rgb(2, 0, 1)
     --card: rgba(255, 255, 255, 0.123);
     --very-green: #008F11;
+    --very-green-50: #008f1180;
     --highlight-green: #00FF41;
     --text: #fff;
 }
@@ -58,14 +59,10 @@ pre {
 a {
     padding: 5px 8px 5px 8px;
     font-size: 12px;
-    border-radius: 2px;
     color: white;
     text-decoration: none;
     cursor: pointer;
     font-weight: bold;
-}
-a:hover {
-    text-decoration: underline;
 }
 h2 > a {
     font-size: inherit;
@@ -84,6 +81,11 @@ button, select {
     cursor: pointer;
 }
 
+button:hover, a:hover {
+    background-color: var(--very-green);
+    color: white;
+}
+
 input, textarea {
     border-bottom: 2px var(--very-green) solid;
     border-left: 2px transparent solid;
@@ -92,6 +94,7 @@ input, textarea {
     background-color: transparent;
     color: var(--text);
     font-family: monospace;
+    caret-color: var(--highlight-green);
 }
 
 button[type="submit"] {
@@ -102,6 +105,33 @@ button[type="submit"] {
 dialog {
     background-color: transparent;
     color: var(--text);
+    border: 0px;
+}
+
+::selection {
+    background: var(--highlight-green);
+    color: black;
+}
+
+/* Entire scrollbar */
+::-webkit-scrollbar {
+    width: 16px;
+    height: 16px;
+    background: black;
+}
+
+/* Scrollbar track */
+::-webkit-scrollbar-track {
+    background: black;
+    border: 2px solid var(--very-green-50);
+    box-shadow:
+        inset -1px -1px var(--very-green-50),
+        inset 1px 1px var(--very-green);
+}
+
+/* Scrollbar thumb */
+::-webkit-scrollbar-thumb {
+    background: var(--very-green);
     border: 0px;
 }
 
@@ -118,6 +148,10 @@ dialog {
 
 .inline {
     padding: 0px;
+    display: inline;
+}
+a.inline {
+    padding: 2px 5px 2px 5px;
     display: inline;
 }
 
@@ -137,6 +171,16 @@ form > .row {
 .space-between {
     justify-content: space-between;
     align-items: center;
+}
+
+.flex-start {
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+.truncate {
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 /* MARK: Specials */
@@ -165,7 +209,7 @@ form > .row {
     align-items: center;
 }
 
-.chat-button {
+.fchat-button {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -177,7 +221,7 @@ form > .row {
     height: 50px;
     font-size: 14px;
 }
-.chat-button > a {
+.fchat-button > a {
     font-size: inherit;
     padding: 0px;
     padding-inline: 8px;
@@ -185,12 +229,23 @@ form > .row {
     width: 100%;
     height: 100%;
 }
-.chat-button > p {
+.fchat-button > p {
     font-size: 8px;
     margin: 0px;
     margin-left: 8px;
     height: 0px;
     margin-top: -20px;
+}
+.chat-button {
+    padding: 12px;
+    cursor: pointer;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    border: 2px solid var(--very-green);
+    border-left: 2px solid var(--highlight-green);
+    height: 50px;
+    font-size: 11px;
+    line-height: 8px;
 }
 
 .message-box {
@@ -205,15 +260,133 @@ form > .row {
 
 .message {
     margin-bottom: 10px;
-    border-left: 2px solid var(--very-green);
-    padding-left: 8px
+    border-left: 2px solid var(--very-green-50);
+    padding-left: 18px
 }
 .message .timestamp {
     font-size: 12px;
     padding: 2px;
     margin: 0px;
-    color: black;
-    background-color: var(--very-green); 
+    color: gray;
     width: max-content;
     font-weight: bold;
+    font-style: italic;
+    user-select: none;
+}
+.message .content {
+    padding-block: 8px;
+    margin: 0px;
+    max-width: 100%;
+    word-break: break-word;
+}
+
+.crt-sweep {
+    position: fixed;
+    top: 0%;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.123);
+    pointer-events: none;
+    animation: crt-sweep 1s linear forwards;
+    z-index: 2000;
+}
+
+@keyframes crt-sweep {
+    0% {
+        top: -100%;
+    }
+    100% {
+        top: 100%;
+    }
+}
+
+/* MARK: Animations */
+.blink {
+    animation: blinking 2s step-start infinite;
+}
+
+@keyframes blinking {
+    0% {
+        background-color: initial;
+    }
+    50% {
+        background-color: var(--very-green-50);
+        font-weight: bold;
+    }
+}
+
+@keyframes opacity-blinking {
+    0%, 50% {
+        opacity: 1;
+    }
+    50.01%, 100% {
+        opacity: 0;
+    }
+}
+
+@keyframes flicker {
+    0%   { opacity: 0.28; }
+    5%   { opacity: 0.35; }
+    10%  { opacity: 0.24; }
+    15%  { opacity: 0.90; }
+    20%  { opacity: 0.18; }
+    25%  { opacity: 0.84; }
+    30%  { opacity: 0.66; }
+    35%  { opacity: 0.68; }
+    40%  { opacity: 0.27; }
+    45%  { opacity: 0.85; }
+    50%  { opacity: 0.96; }
+    55%  { opacity: 0.09; }
+    60%  { opacity: 0.20; }
+    65%  { opacity: 0.72; }
+    70%  { opacity: 0.53; }
+    75%  { opacity: 0.37; }
+    80%  { opacity: 0.71; }
+    85%  { opacity: 0.70; }
+    90%  { opacity: 0.70; }
+    95%  { opacity: 0.36; }
+    100% { opacity: 0.24; }
+}
+
+/* MARK: Mask */
+
+body::before { /* Overlay scanlines + pixel grid */
+    content: "";
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    background:
+        linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.25) 50%) repeat-y,
+        linear-gradient(90deg, rgba(255,0,0,0.06), rgba(0,255,0,0.02), rgba(0,0,255,0.06)) repeat-x;
+    background-size: 100% 2px, 3px 100%;
+    z-index: 100;
+}
+
+/* Flicker effect */
+body::after {
+  content: "";
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  pointer-events: none;
+  animation: flicker 0.25s infinite;
+  z-index: 100;
+}
+
+.crt {
+    overflow: hidden;
+    perspective: 600px;
+    transform-style: preserve-3d;
+    transform:
+        scale(0.96)
+        rotateX(3deg)
+        rotateY(3deg);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.212);
+    box-shadow:
+        inset 0 0 100px rgba(0, 255, 0, 0.336),
+        inset 0 0 180px rgba(0, 0, 0, 0.9);
+    filter: contrast(1.3) brightness(0.95);
+    mask-image: radial-gradient(circle at center, white 95%, transparent 100%);
 }

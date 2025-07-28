@@ -3,7 +3,14 @@ from pathlib import Path
 from typing import Any, List, Optional, Tuple, Union
 from flask import g
 from time import time
-from database.typings import DatabaseException, User, Chat, ChatMember, Message
+from database.typings import (
+    DatabaseException,
+    User,
+    Chat,
+    ChatMember,
+    Message,
+    ChatInvite
+)
 
 class Database:
     def __init__(self, database="./main.db", schema="./schema.sql", init: str = ""):
@@ -54,7 +61,7 @@ class Database:
         self.connection.close()
 
     # Execute a command against the database
-    def execute(self, query: str, parameters: Union[Tuple[Any, ...], dict]) -> int:
+    def execute(self, query: str, parameters: Union[Tuple[Any, ...], dict] = ()) -> int:
         cursor = None
         try:
             if not self.connection:
@@ -130,8 +137,18 @@ class DatabaseAbstractions(Database):
                      parameters=(chat_id, user_id))
         
     def invite_user_to_group(self, chat_id: int, user_id: int):
-        self.execute("INSERT INTO ChatInvites (chat_id, user_id) VALUE (?, ?)",
-                     parameters=(chat_id, user_id))
+        # BEGIN FLAW 2
+        self.execute(f"INSERT INTO ChatInvites (chat_id, user_id) VALUES ({chat_id}, {user_id})")
+        # END FLAW 2
+        
+        # BEGIN FIX 2
+        # REPLACE FLAW ABOVE WITH FIX BELOW
+        #self.execute(f"INSERT INTO ChatInvites (chat_id, user_id) VALUES (?, ?)",
+        #             parameters=(chat_id, user_id))
+        # END FIX 2
+
+    def remove_user_invite(self, chat_id: int, user_id: int):
+        self.execute("DELETE FROM ChatInvites WHERE chat_id = ? AND user_id = ?", parameters=(chat_id, user_id))
         
     def get_chats(self, user_id: int, page=0):
         results = self.query("""
@@ -143,6 +160,15 @@ class DatabaseAbstractions(Database):
                              parameters=(user_id,))
         return [ Chat(*result) for result in results ]
     
+    def get_chat_by_id(self, chat_id: int) -> Chat | None:
+        results = self.query("""
+                             SELECT c.*
+                             FROM Chats AS c
+                             WHERE c.id = ?
+                             """,
+                             parameters=(chat_id,))
+        return Chat(*results[0]) if len(results) != 0 else None
+    
     def get_chat_members(self, chat_id: int) -> List[ChatMember]:
         results = self.query("""
                              SELECT
@@ -153,6 +179,30 @@ class DatabaseAbstractions(Database):
                              """,
                              parameters=(chat_id,))
         return [ ChatMember(*result) for result in results ]
+    
+    def get_chat_invites(self, chat_id: int) -> List[ChatInvite]:
+        results = self.query("""
+                             SELECT
+                             ci.*
+                             FROM ChatInvites ci
+                             JOIN Users u ON ci.user_id = u.id
+                             WHERE ci.chat_id = ?
+                             """,
+                             parameters=(chat_id,))
+        return [ ChatInvite(*result) for result in results ]
+    
+    def get_user_invites(self, user_id: int) -> List[Chat]:
+        results = self.query("""
+                             SELECT
+                             c.id as id,
+                             c.name as name,
+                             c.is_group as is_group
+                             FROM ChatInvites ci
+                             JOIN Chats c ON ci.chat_id = c.id
+                             WHERE ci.user_id = ?
+                             """,
+                             parameters=(user_id,))
+        return [ Chat(*result) for result in results ]
     
     def get_messages(self, chat_id: int):
         results = self.query("""

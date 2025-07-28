@@ -21,7 +21,7 @@
                 {% endif %}
 
                 <form action="/api/register" method="POST">
-                    <div class="row">
+                    <div class="flex row space-between">
                         <label for="tag">Tag:</label>
                         <input
                             type="text"
@@ -29,7 +29,7 @@
                             required
                         >
                     </div>
-                    <div class="row">
+                    <div class="flex row space-between">
                         <label for="password">Password:</label>
                         <input
                             type="password"
@@ -37,8 +37,8 @@
                             required
                         >
                     </div>
-                    <div class="row">
-                        <label for="password-again">Password:</label>
+                    <div class="flex row space-between">
+                        <label for="password-again">Password (again):</label>
                         <input
                             type="password-again"
                             name="password-again"

@@ -15,18 +15,19 @@
                         Direct Message: @{{ known_users[(chat_members[chat.id] | rejectattr("user_id", "equalto", session["user"].id) | list)[0].user_id].tag }}
                     {% endif %}
                 </h2>
-                {% if chat.is_group %}
+                # TODO: Check if admin
+                {% if chat.is_group and %}
                     <div>
                         <a href="/?chat={{ chat.id }}&invite">Invite</a>
                         <a>Settings</a>
                     </div>
                 {% endif %}
             </div>
-            <div class="stack" style="padding: 8px; overflow-y: auto; flex: 1 1 auto; flex-direction: column-reverse;">
+            <div class="stack" id="messages" style="padding: 18px; overflow-y: auto; flex: 1 1 auto; flex-direction: column-reverse;">
                 {% for message in (messages | reverse) %}
-                    <div class="flex stack row message">
-                        <p class="timestamp"><i>{{ get_timestamp(message.created) }}</i></p>
-                        <p style="padding-block: 8px; margin: 0px; max-width: 100%; word-break: break-word;">
+                    <div class="flex stack row message" message_id="{{ message.id }}">
+                        <p class="timestamp">{{ get_timestamp(message.created) }}</p>
+                        <p class="content">
                             @{{ known_users[message.user_id].tag }}: {{ message.content }}
                         </p>
                     </div>
@@ -49,5 +50,67 @@
                 </form>
             </div>
         </div>
+    {% else %}
+        <div class="center stack" style="height: 100vh;">
+            <p style="font-size: 10px;">The vast emptiness...</p>
+        </div>
+    {% endif %}
+
+    {% if "chat" in request.args %}
+        <!-- Eek! You found my little Javascript nook! -->
+        <!-- I know, this isn't supposed to be here, -->
+        <!-- but for the sake of usability, this crime shall go unpunished -->
+        <span id="request_token" style="display: none;">{{ session.request_token }}</span>
+        <script>
+
+            function get_timestamp(epoch) { // JS abstract for get_timestamp
+                const date = new Date(epoch * 1000)
+
+                const day = String(date.getDate()).padStart(2, "0")
+                const month = String(date.getMonth() + 1).padStart(2, "0")
+                const year = date.getFullYear()
+                const hours = String(date.getHours()).padStart(2, "0")
+                const minutes = String(date.getMinutes()).padStart(2, "0")
+
+                return `${day}.${month}.${year} @ ${hours}:${minutes} `
+            }
+
+            function doPoll() {
+                fetch("/api/poll-messages", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        chat_id: Number(new URL(window.location.href).searchParams.get("chat")),
+                        last_message_id: Number(document.querySelector("[message_id]").getAttribute("message_id")),
+                        request_token: window.request_token.innerText
+                    }),
+                }).then(async (res) => {
+                    if (res.status === 204) {
+                        console.debug("No new messages.")
+                    } else {
+                        const stack = document.getElementById("messages")
+                        for (const message of (await res.json())) {
+                            const container = document.createElement("div")
+                            container.setAttribute("message_id", message.id)
+                            container.className = "flex stack row message"
+                            const timestamp = document.createElement("p")
+                            timestamp.className = "timestamp"
+                            timestamp.innerText = get_timestamp(message.created)
+                            const content = document.createElement("p")
+                            content.className = "content"
+                            content.innerText = `@${message.username}: ${message.content}`
+                            container.appendChild(timestamp)
+                            container.appendChild(content)
+                            stack.insertBefore(container, stack.firstChild)
+                        }
+                    }
+
+                    setTimeout(doPoll, 1000)
+                })
+            }
+            doPoll()
+        </script>
     {% endif %}
 {% endblock %}
