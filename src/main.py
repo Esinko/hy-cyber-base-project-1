@@ -1,5 +1,6 @@
 from secrets import token_urlsafe
 from pathlib import Path
+from argparse import ArgumentParser
 from datetime import datetime
 from flask import (
     Flask,
@@ -43,6 +44,7 @@ app.secret_key = "VERYSECURE"
 #secret_key_file = Path("./.secret")
 #if not secret_key_file.exists():
 #    secret_key_file.write_text(token_urlsafe(64), "utf-8")
+#
 #app.secret_key = secret_key_file.read_text("utf-8")
 # END FIX 5
 
@@ -151,5 +153,9 @@ app.add_url_rule("/api/group/kick", view_func=api_kick_member, methods=["POST"])
 
 # Start the Flask app
 if __name__ == "__main__":
-    app.run()
+    # Handle --host
+    parser = ArgumentParser()
+    parser.add_argument("--host", default="127.0.0.1")
+    args = parser.parse_args()
+    app.run(host=args.host)
 

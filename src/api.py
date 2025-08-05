@@ -1,6 +1,7 @@
 from flask import redirect, request, session
 from werkzeug.security import check_password_hash, generate_password_hash
 from json import dumps
+from re import match
 from time import time, sleep
 from database.sqlite import get_db
 from util.includes import includes
@@ -204,7 +205,8 @@ def api_join():
         return redirect(f"/?chat={chat_id}")
     elif request.path.endswith("reject"):
         get_db().remove_user_invite(chat_id, session["user"]["id"])
-        return redirect(f"/?chat={request.args["return"]}" if "return" in request.args else "/")
+        return_target = request.args["return"]
+        return redirect(f"/?chat={return_target}" if "return" in request.args else "/")
 
     return "Well... uh... Success!", 200
 
