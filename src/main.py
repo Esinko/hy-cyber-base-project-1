@@ -149,3 +149,7 @@ app.add_url_rule("/api/group/rename", view_func=api_change_group_name, methods=[
 app.add_url_rule("/api/group/kick", view_func=api_kick_member, methods=["POST"])
 
 
+# Start the Flask app
+if __name__ == "__main__":
+    app.run()
+

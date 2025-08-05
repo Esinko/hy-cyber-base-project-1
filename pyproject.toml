@@ -12,7 +12,7 @@ license = {text = "MIT"}
 
 
 [tool.pdm.scripts]
-start = "flask --app ./src/main.py run"
+start = "python3 src/main.py"
 
 
 [tool.pdm]
