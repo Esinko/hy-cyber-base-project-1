@@ -29,7 +29,7 @@ body {
     color: var(--text)
 }
 
-h1, h2, h3, h4 {
+h1, h2 {
     padding: 12px;
     background-color: var(--very-green);
     color: black;
@@ -45,6 +45,11 @@ h2 {
     font-weight: 800;
     padding: 4px;
     margin: 0px;
+}
+h3 {
+    color: white;
+    border-bottom: 3px solid var(--very-green);
+    padding-inline: 4px;
 }
 
 p {
@@ -84,6 +89,13 @@ button, select {
 button:hover, a:hover {
     background-color: var(--very-green);
     color: white;
+}
+button:disabled {
+    border-color: gray;
+    background-color: black;
+}
+button:disabled:hover {
+    cursor: not-allowed;
 }
 
 input, textarea {

@@ -3,6 +3,9 @@
     {% if session.user %}
         <div class="box" style="width: 100%; border-top: 0px;">
             <p>Account: {{ session.user.tag }}</p>
+            {% if session.user.is_admin %}
+                <p style="font-size: 12px; color: red;">(Administrator)</p>
+            {% endif %}
             <p style="margin-left: -5px;"><a class="inline" href="/logout">Logout</a></p>
         </div>
     {% else %}

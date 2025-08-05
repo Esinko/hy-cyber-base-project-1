@@ -18,7 +18,9 @@ from api import (
     api_create_group,
     api_poll_new_message,
     api_invite,
-    api_join
+    api_join,
+    api_change_group_name,
+    api_kick_member
 )
 from database.sqlite import get_db
 
@@ -60,6 +62,7 @@ def check_csrf():
         data = request.get_json() if request.headers.get("Content-Type") == "application/json" else request.form
         if (
             "request_token" not in data.keys() or
+            "request_token" not in session or
             data["request_token"] != session["request_token"]
         ):
             return "Unauthorized", 401
@@ -89,13 +92,17 @@ def home():
         # If in chat
         if "chat" in request.args:
             chat_id = int(request.args["chat"])
-            messages = get_db().get_messages(chat_id)
+            messages = (
+                get_db().get_messages(chat_id)
+                if chat_id in chat_members and any(map(lambda member: member.user_id == session["user"]["id"], chat_members[chat_id]))
+                else []
+            )
             is_chat_admin = (
                 # FIXME: This is pretty slow. We should get the user's membership as is 
                 # and check that instead of looping through all of them
                 any(map(lambda mem: mem.user_id == session["user"]["id"] and mem.is_chat_admin, chat_members[chat_id])) or
                 session["user"]["is_admin"]
-            )
+            ) if chat_id in chat_members else False
 
     return render_template("./pages/home.html",
                            chats=chats,
@@ -138,3 +145,7 @@ app.add_url_rule("/api/poll-messages", view_func=api_poll_new_message, methods=[
 app.add_url_rule("/api/invite", view_func=api_invite, methods=["POST"])
 app.add_url_rule("/api/join/accept", view_func=api_join, methods=["POST"])
 app.add_url_rule("/api/join/reject", view_func=api_join, methods=["POST"])
+app.add_url_rule("/api/group/rename", view_func=api_change_group_name, methods=["POST"])
+app.add_url_rule("/api/group/kick", view_func=api_kick_member, methods=["POST"])
+
+

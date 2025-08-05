@@ -1,0 +1,59 @@
+<dialog
+{% if "settings" in request.args %}
+    open
+{% endif %}
+>
+    {% if "chat" in request.args %}
+        <div class="center stack" style="height: 100vh;">
+            <div class="box" style="width: 400px; margin-top: -80px; background-color: black;">
+                <div class="flex row" style="flex-wrap: nowrap; margin-bottom: 10px;">
+                    <h2 style="width: 100%;">Edit Group</h2>
+                    <h2><a href="/{{ '?chat=' + request.args['chat'] if 'chat' in request.args else '' }}">X</a></h2>
+                </div>
+
+                <form action="/api/group/rename" method="POST">
+                    <input type="hidden" name="request_token" value="{{ session.request_token }}">
+                    <input type="hidden" name="chat_id" value="{{ request.args['chat'] }}">
+                    <div class="flex row space-between">
+                        <div class="flex row">
+                            <label for="name">Name:</label>
+                            {% set chat = chats | selectattr('id', 'equalto', request.args['chat'] | int) | list | first %}
+                            <input
+                                type="text"
+                                name="name"
+                                value="{{ chat.name if chat else '' }}"
+                                required
+                            >
+                        </div>
+                        <button type="submit" style="width: 100px;">Save Name</button>
+                    </div>
+                </form>
+
+                <div class="stack">
+                    <h3 style="width: max-content">Group Members</h3>
+                    <div class="stack row">
+                        {% for member in chat_members[request.args["chat"] | int] %}
+                            <div class="flex row space-between">
+                                <div class="flex row" style="gap: 5px">
+                                    <p>{{ "[Admin]" if member.is_chat_admin else "" }}</p>
+                                    <p>@{{ known_users[member.user_id].tag }}</p>
+                                </div>
+                                <form action="/api/group/kick" method="POST">
+                                    <input type="hidden" name="request_token" value="{{ session.request_token }}">
+                                    <input type="hidden" name="chat_id" value="{{ request.args['chat'] }}">
+                                    <input type="hidden" name="tag" value="{{ known_users[member.user_id].tag }}">
+                                    <button
+                                        type="submit"
+                                        {{ 'disabled' if member.user_id == session["user"].id or member.is_chat_admin else '' }}
+                                    >
+                                        Kick
+                                    </button>
+                                </form>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</dialog>

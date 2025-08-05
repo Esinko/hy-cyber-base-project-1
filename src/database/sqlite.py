@@ -1,5 +1,6 @@
 from sqlite3 import Error, connect
 from pathlib import Path
+from types import new_class
 from typing import Any, List, Optional, Tuple, Union
 from flask import g
 from time import time
@@ -121,6 +122,18 @@ class DatabaseAbstractions(Database):
         new_chat.id = chat_id
         return new_chat
     
+    def edit_group_chat_name(self, chat_id: int, new_name: str):
+        self.execute("UPDATE Chats SET name = ? WHERE id = ?",
+                     parameters=(new_name, chat_id))
+        
+    def kick_member_from_group(self, chat_id: int, user_id: int):
+        self.execute("DELETE FROM ChatMembers WHERE chat_id = ? AND user_id = ?",
+                     parameters=(chat_id, user_id))
+        
+    def set_chat_member_admin(self, chat_id: int, user_id: int, is_admin: bool) :
+        self.execute("UPDATE ChatMembers SET is_chat_admin = ? WHERE user_id = ? AND chat_id = ?",
+                     parameters=(is_admin, user_id, chat_id))
+    
     def dm_exists_between(self, first_user_id: int, second_user_id: int) -> bool:
         results = self.query("""
                      SELECT c.id
@@ -136,15 +149,20 @@ class DatabaseAbstractions(Database):
         self.execute("INSERT INTO ChatMembers (chat_id, user_id) VALUES (?, ?)",
                      parameters=(chat_id, user_id))
         
-    def invite_user_to_group(self, chat_id: int, user_id: int):
+    def invite_user_to_group(self, chat_id: int, user_tag: str) -> bool:
         # BEGIN FLAW 2
-        self.execute(f"INSERT INTO ChatInvites (chat_id, user_id) VALUES ({chat_id}, {user_id})")
+        self.connection.executescript(f"INSERT INTO ChatInvites (chat_id, user_id) SELECT '{chat_id}', id FROM Users WHERE tag = '{user_tag}'")
+        self.connection.commit()
+        return True
         # END FLAW 2
         
         # BEGIN FIX 2
         # REPLACE FLAW ABOVE WITH FIX BELOW
+        #user_to_invite = self.get_user(user_tag)
+        #if not user_to_invite: return False
         #self.execute(f"INSERT INTO ChatInvites (chat_id, user_id) VALUES (?, ?)",
-        #             parameters=(chat_id, user_id))
+        #             parameters=(chat_id, user_to_invite.id))
+        #return True
         # END FIX 2
 
     def remove_user_invite(self, chat_id: int, user_id: int):

@@ -12,7 +12,6 @@ class User():
     description: str = ""
     password_hash: str = ""
     is_admin: int = 0
-    
 
 @dataclass
 class Chat():

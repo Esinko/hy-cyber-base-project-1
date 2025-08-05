@@ -2,12 +2,16 @@
 {% block navigation %}
     {% include "./components/sidebar.html" %}
     {% include "./dialogs/invite.html" %}
+    {% include "./dialogs/edit-group.html" %}
 {% endblock %}
 {% block content %}
     {% if "chat" in request.args %}
         <div class="stack row" style="height: 100vh;">
             <div class="flex row space-between box" style="height: 54px; border-left: 0px; align-items: center;">
-                {% set chat = (chats | selectattr("id", "equalto", request.args["chat"] | int) | list)[0] %}
+                {% set chat = chats | selectattr('id', 'equalto', request.args['chat'] | int) | list | first %}
+                {% if not chat %}
+                    {% set chat = { 'name': '', 'is_group': True } %}
+                {% endif %}
                 <h2 style="background-color: transparent; color: var(--text)">
                     {% if chat.is_group %}
                         {{ chat.name }}
@@ -15,11 +19,10 @@
                         Direct Message: @{{ known_users[(chat_members[chat.id] | rejectattr("user_id", "equalto", session["user"].id) | list)[0].user_id].tag }}
                     {% endif %}
                 </h2>
-                # TODO: Check if admin
-                {% if chat.is_group and %}
+                {% if chat.is_group and is_chat_admin %}
                     <div>
                         <a href="/?chat={{ chat.id }}&invite">Invite</a>
-                        <a>Settings</a>
+                        <a href="/?chat={{ chat.id }}&settings">Settings</a>
                     </div>
                 {% endif %}
             </div>
@@ -28,7 +31,7 @@
                     <div class="flex stack row message" message_id="{{ message.id }}">
                         <p class="timestamp">{{ get_timestamp(message.created) }}</p>
                         <p class="content">
-                            @{{ known_users[message.user_id].tag }}: {{ message.content }}
+                            @{{ known_users[message.user_id].tag if known_users[message.user_id] else 'UNKNOWN' }}: {{ message.content }}
                         </p>
                     </div>
                 {% endfor %}
@@ -76,6 +79,7 @@
             }
 
             function doPoll() {
+                const latestMessage = document.querySelector("[message_id]")
                 fetch("/api/poll-messages", {
                     method: "POST",
                     headers: {
@@ -83,7 +87,7 @@
                     },
                     body: JSON.stringify({
                         chat_id: Number(new URL(window.location.href).searchParams.get("chat")),
-                        last_message_id: Number(document.querySelector("[message_id]").getAttribute("message_id")),
+                        last_message_id: latestMessage ? (latestMessage.getAttribute("message_id")) : 0,
                         request_token: window.request_token.innerText
                     }),
                 }).then(async (res) => {
@@ -110,7 +114,7 @@
                     setTimeout(doPoll, 1000)
                 })
             }
-            doPoll()
+            window.addEventListener("load", doPoll)
         </script>
     {% endif %}
 {% endblock %}

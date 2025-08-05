@@ -4,7 +4,7 @@
 {% endif %}
 >
     <div class="center stack" style="height: 100vh;">
-        <div class="box" style="width: 300px; margin-top: -80px;">
+        <div class="box" style="width: 300px; margin-top: -80px; background-color: black;">
             <div class="flex row" style="flex-wrap: nowrap;">
                 <h2 style="width: 100%;">New Group</h2>
                 <h2><a href="/{{ '?chat=' + request.args['chat'] if 'chat' in request.args else '' }}">X</a></h2>
@@ -15,7 +15,7 @@
 
                 <form action="/api/create-group" method="POST">
                     <div class="row">
-                        <label for="tag">Name:</label>
+                        <label for="name">Name:</label>
                         <input
                             type="text"
                             name="name"
