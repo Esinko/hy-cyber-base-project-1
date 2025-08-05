@@ -10,7 +10,7 @@ USER appuser
 RUN pip install --user pdm --break-system-packages
 RUN pdm install --prod
 
-EXPOSE 8000
+EXPOSE 5000
 COPY . .
 
 CMD ["pdm", "run", "start"]
