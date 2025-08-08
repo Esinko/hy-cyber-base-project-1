@@ -14,6 +14,8 @@ This repository is a nice sample project for creating [Capture The Flag (CTF)](h
 ### Introduction: zero-chat
 > *Chat about all of those zero-days you found. What's the risk?*
 
+![preview](./images/preview.png)
+
 This project is a mockup of a for-hackers-by-hackers chat application do discuss the various Zero Day vulnerabilities they've discovered.
 
 All chat-rooms are invite only, so you can easily keep your secrets to yourself...
