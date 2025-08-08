@@ -4,9 +4,7 @@ This is repository contains a full course project (1) for the Cyber Security Bas
 The goal is to demonstrate 5 vulnerabilities from [OWASP's Top Ten](https://owasp.org/www-project-top-ten/) list (2021).
 The presence of these vulnerabilities is clearly documented in the code with their proposed fixes commented out of the final program.
 
-This repository also contains the project essay in its mandated form.
-
-**Other Use Cases**
+#### Other Use Cases
 This repository is a nice sample project for creating [Capture The Flag (CTF)](https://en.wikipedia.org/wiki/Capture_the_flag_(cybersecurity)) challenges.
 
 ## About the Project
@@ -23,7 +21,15 @@ All chat-rooms are invite only, so you can easily keep your secrets to yourself.
 Sign-up, create a profile for yourself and join chat-rooms or start a DM with another user.
 
 ### Architecture
-The program has separate backend and frontend components. The frontend is made with Flask templates using only HTML and CSS. The backend is a Flask webserver programmed (natively) in Python `3.13`.
+The program has separate backend and frontend components. The frontend is made with Jinja2 templates using only HTML and CSS (trust me bro). The backend is a Python `3.13` native Flask webserver. It should work on Python `3.9` and later.
+
+#### Further Development
+It should be noted that this is not a feature-complete chat application and some features were dropped during development due to time constraints. These features are missing at the time of writing this:
+- Password reset
+- Profile pages
+- Admin management view (all chats & accounts listed etc.)
+
+I understand that this stack is not for production or event best practice (if such a thing exists), but it is highly readable and simple. These aspects support the main goal of this project, but they might make contributing to this project undesirable. However, contributions are welcome!
 
 ### Default Credentials
 There are 2 default accounts:
@@ -70,7 +76,7 @@ Just add `/?chat=<any id>` as the path in the URL and you can see messages:
 
 *User foo can see the chat with id '2' (created by another user) even when they are not in any chat.*
 
-*Sometimes the user names show up as unknown, if the user has not connected with the sender of the message via DM or group!*
+*Sometimes the usernames show up as "unknown", if the user has not connected with the sender of the message via DM or group!*
 
 #### Vulnerability
 ```python
@@ -110,7 +116,7 @@ When you log in again, your session has updated to admin:
 ![user as admin](./images/flaw-2-before-2.png)
 
 #### Vulnerability
-Not using parameters and allowing multiple queries by using `executescript` instead of execute:`
+Not using parameters and allowing multiple queries by using `executescript` instead of execute:
 ```python
 def invite_user_to_group(self, chat_id: int, user_tag: str) -> bool:
     self.connection.executescript(f"INSERT INTO ChatInvites (chat_id, user_id) SELECT '{chat_id}', id FROM Users WHERE tag = '{user_tag}'")
@@ -148,7 +154,9 @@ You can trigger the error using `curl` by leaving out the `tag` value from the e
 
 *You can get the request_token and session cookie by simply loading the home page without logging in. The request_token is in the DOM in a hidden input field in various places and the session cookie in the cookie store (under Application tab in Chromium devtools)*
 
-Unfortunately the stacktrace happens to contain the hashed password of the user :/ Luckily any sane developer implements password strength requirements :)
+Unfortunately the stacktrace happens to contain the hashed password of the user :/
+
+Luckily any sane developer implements password strength requirements :)
 
 #### Vulnerability
 ```python
@@ -205,6 +213,8 @@ Whoops! The developers forgot to use a secure and sufficiently random secret for
 This leads to an attacker being able to generate a session cookie for any account.
 
 In the real world the attacker needs to brute-force the secret, but in our case, we can just copy it from the source code.
+
+With the secret, we can edit the data stored in our session. In this case, let's make ourself admin by changing a `0` to a `1`. First we'll decode our session data, edit it and then we'll re-encode it.
 
 You can use a command-line tool called `flask-unsign`, which you can install with `pip`:
 
